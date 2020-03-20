@@ -30,6 +30,12 @@ __global__ void MatrixMulKernel(float * A,float * B,float * C,int len)
 
 int main(int argc, char ** argv) 
 {
+   cudaEvent_t start, stop;
+   cudaEventCreate(&start);
+   cudaEventCreate(&stop);
+    
+   cudaEventRecord(start);
+
    float h_A[SIZE*SIZE],h_B[SIZE*SIZE],h_C[SIZE*SIZE];
    float * d_A, * d_B, * d_C;
 
@@ -61,6 +67,14 @@ int main(int argc, char ** argv)
 
    // copy results back to host
    cudaMemcpy(h_C,d_C,size,cudaMemcpyDeviceToHost);
+   cudaEventRecord(stop);
+   cudaEventSynchronize(stop);
+   float milliseconds = 0;
+   cudaEventElapsedTime(&milliseconds, start, stop);
+   printf("kernel time (ms) : %7.5f\n", milliseconds);
+
+   cudaEventDestroy(start);
+   cudaEventDestroy(stop);
 
    // Free up device memory
    cudaFree(d_A);

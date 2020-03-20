@@ -28,6 +28,11 @@ void multiply(float * A, float * B, float * C)
 
 int main(int argc, char ** argv) 
 {
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    
+    cudaEventRecord(start);
     // create matrices and initialize A and B to arbitray values
     float A[SIZE*SIZE],B[SIZE*SIZE],C[SIZE*SIZE];
     int i;
@@ -37,6 +42,14 @@ int main(int argc, char ** argv)
     }
     
     multiply(A,B,C); // perform matrix multiply
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    printf("kernel time (ms) : %7.5f\n", milliseconds);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     return 0;
 }
